@@ -1,10 +1,40 @@
 :root{--g:#405247;--g2:#2f3e35;--iv:#f6f1e8;--br:#8a6a4a;--gr:#9aa096;--line:#ddd5c9;--red:#a65b50}
 *{box-sizing:border-box}body{margin:0;background:var(--iv);color:#2b302c;font-family:"Gowun Dodum",-apple-system,sans-serif;padding-bottom:100px}button,input{font:inherit}
 header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(64,82,71,.96);color:#fff}
-.brand-logo{width:42px;height:34px;object-fit:contain}.eyebrow,.ver,.dir,.roasts button{font-family:"Arvo",serif}.eyebrow{font-size:9px;letter-spacing:.15em;opacity:.7}h1{font:700 23px "Arvo",serif;margin:1px 0}.sub{font-size:10px;opacity:.78}.ver{margin-left:auto;font-size:11px;background:#ffffff18;padding:5px 8px;border-radius:20px}
+.brand-logo{
+  width:44px!important;
+  height:40px!important;
+  object-fit:contain!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  image-rendering:auto!important;
+  opacity:1!important
+}.eyebrow,.ver,.dir,.roasts button{font-family:"Arvo",serif}.eyebrow{font-size:9px;letter-spacing:.15em;opacity:.7}h1{font:700 23px "Arvo",serif;margin:1px 0}.sub{font-size:10px;opacity:.78}.ver{margin-left:auto;font-size:11px;background:#ffffff18;padding:5px 8px;border-radius:20px}
 main{max-width:640px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #ebe4d9;border-radius:20px;padding:16px;margin:0 0 12px;box-shadow:0 4px 14px #473d3010}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.section-head b{font-size:17px}.section-head span{font:700 9px "Arvo",serif;color:var(--br);letter-spacing:.12em}
 .roasts,.quick{display:flex;gap:7px;flex-wrap:wrap}.roasts button,.quick button,.secondary{border:1px solid var(--line);background:#faf8f4;border-radius:12px;padding:9px 11px}.roasts button.on,.quick button.on{background:var(--g);color:#fff;border-color:var(--g)}
-.knob-wrap{position:relative;width:220px;height:205px;margin:0 auto}.pointer{position:absolute;top:2px;left:50%;transform:translateX(-50%);color:var(--br);font-size:16px;z-index:5}.knob{position:absolute;top:24px;left:50%;transform:translateX(-50%);width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#747a72,#4d544d 60%,#343a35);box-shadow:inset 0 4px 12px #ffffff22,0 8px 18px #0002;touch-action:none}.dial{position:absolute;inset:0}.mark{position:absolute;left:50%;top:50%;transform-origin:0 0;color:#fff}.num{font:700 12px "Arvo",serif}.tick{width:2px;height:8px;background:#eee;border-radius:2px}.center-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;object-fit:contain}.dir{position:absolute;left:20px;right:20px;bottom:0;display:flex;justify-content:space-between;font-size:10px;color:var(--gr)}
+.knob-wrap{position:relative;width:220px;height:205px;margin:0 auto}.pointer{position:absolute;top:2px;left:50%;transform:translateX(-50%);color:var(--br);font-size:16px;z-index:5}.knob{position:absolute;top:24px;left:50%;transform:translateX(-50%);width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#747a72,#4d544d 60%,#343a35);box-shadow:inset 0 4px 12px #ffffff22,0 8px 18px #0002;touch-action:none}.dial{position:absolute;inset:0}.mark{position:absolute;left:50%;top:50%;transform-origin:0 0;color:#fff}.num{font:700 12px "Arvo",serif}.tick{width:2px;height:8px;background:#eee;border-radius:2px}.center-logo{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:18px!important;
+  height:17px!important;
+  object-fit:contain!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  opacity:1!important;
+  image-rendering:auto!important;
+  z-index:5!important;
+  pointer-events:none!important
+}.dir{position:absolute;left:20px;right:20px;bottom:0;display:flex;justify-content:space-between;font-size:10px;color:var(--gr)}
 .live{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.live div{background:#f7f4ee;border-radius:12px;padding:10px;text-align:center}.live small{display:block;font-size:9px;color:#777}.live strong{font:700 13px "Arvo",serif}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid label{font-size:11px;color:#666}.grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fbfaf7;color:#222;font-family:"Arvo","Gowun Dodum",serif}
 .flavor{margin-top:14px}.fhead{display:flex;justify-content:space-between;font-size:12px}.state{color:var(--br);font-size:11px}.flavor input{width:100%;accent-color:var(--g)}
