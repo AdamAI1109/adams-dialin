@@ -1,4 +1,77 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#405247"><link rel="manifest" href="./manifest.webmanifest"><title>Adam's Dial-in</title></head><body style="margin:0;background:#F6F1E8"><script>
-(async()=>{const ps=await Promise.all([1,2,3].map(n=>fetch(`./payload${n}.txt`).then(r=>{if(!r.ok)throw new Error(`payload${n} ${r.status}`);return r.text()})));const b=ps.join('').replace(/\s/g,'');const a=Uint8Array.from(atob(b),c=>c.charCodeAt(0));const ds=new DecompressionStream('gzip');const t=await new Response(new Blob([a]).stream().pipeThrough(ds)).text();document.open();document.write(t);document.close();})().catch(e=>{document.body.innerHTML='<pre style="padding:20px;font-family:sans-serif">Adam\'s Dial-in load error\n'+e+'</pre>'});
-</script></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#405247">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./style.css">
+<title>Adam's Dial-in</title>
+</head>
+<body>
+<header>
+  <img src="./logo.png" class="brand-logo" alt="Adam's">
+  <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
+  <span class="ver">v1.16</span>
+</header>
+
+<main>
+<section class="card">
+  <div class="section-head"><b>현재 세팅</b><span>STEP 1</span></div>
+  <div class="roasts">
+    <button data-roast="light">LIGHT</button><button class="on" data-roast="medium">MEDIUM</button>
+    <button data-roast="mediumdark">MEDIUM DARK</button><button data-roast="dark">DARK</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head"><b>MYG85 노브</b><span>STEP 2</span></div>
+  <div class="knob-wrap">
+    <div class="pointer">▼</div>
+    <div id="knob" class="knob">
+      <div id="dial" class="dial"></div>
+      <img src="./logo.png" class="center-logo" alt="">
+    </div>
+    <div class="dir"><span>COARSE</span><span>FINE</span></div>
+  </div>
+  <div class="live">
+    <div><small>현재 노브</small><strong id="knobText">1+9</strong></div>
+    <div><small>예상 간격</small><strong id="umText">376 µm</strong></div>
+    <div><small>추출 비율</small><strong id="ratioText">1:1.66</strong></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div>
+  <div class="grid">
+    <label>도징량 g<input id="dose" type="number" step=".1" value="20.5"></label>
+    <label>추출량 g<input id="yield" type="number" step=".1" value="34"></label>
+    <label>추출시간 s<input id="time" type="number" step=".1" value="27"></label>
+    <label>온도 °C<input id="temp" type="number" step=".5" value="90"></label>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head"><b>맛 입력</b><span>STEP 4</span></div>
+  <div class="quick"><button data-preset="sour">시다</button><button data-preset="bitter">쓰다</button><button data-preset="mixed">쓰고 시다</button></div>
+  <div id="sliders"></div>
+</section>
+
+<section id="result" class="card result hidden">
+  <span id="badge" class="badge">진단</span>
+  <h2 id="headline"></h2>
+  <div class="compare"><div><small>현재</small><b id="cur"></b></div><span>→</span><div><small>목표</small><b id="target"></b></div></div>
+  <div id="reason" class="reason"></div>
+  <div id="plan" class="plan"></div>
+  <button id="saveShot" class="secondary">이 샷 저장</button>
+  <div id="history"></div>
+</section>
+</main>
+
+<div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
+<script src="./app.js"></script>
+</body>
+</html>
