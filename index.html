@@ -8,14 +8,28 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./style-v120.css">
 <title>Adam's Dial-in</title>
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(rs){
+      rs.forEach(function(r){r.unregister();});
+    }).catch(function(){});
+  }
+  if(window.caches){
+    caches.keys().then(function(ks){
+      return Promise.all(ks.map(function(k){return caches.delete(k);}));
+    }).catch(function(){});
+  }
+})();
+</script>
 </head>
 <body>
 <header>
-  <span class="adams-mark header-mark" aria-label="Adam's"><span class="logo-a">A</span><span class="logo-word">dam's</span></span>
+  <img src="./adams-logo-exact.svg?v=120" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.19</span>
+  <span class="ver">v1.20</span>
 </header>
 
 <main>
@@ -33,7 +47,7 @@
     <div class="pointer">▼</div>
     <div id="knob" class="knob">
       <div id="dial" class="dial"></div>
-      <span id="knobMark" class="adams-mark knob-mark" aria-hidden="true"><span class="logo-a">A</span><span class="logo-word">dam's</span></span>
+      <img src="./adams-logo-exact.svg?v=120" class="center-logo" alt="">
     </div>
     <div class="dir"><span>COARSE</span><span>FINE</span></div>
   </div>
@@ -72,6 +86,6 @@
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app.js"></script>
+<script src="./app-v120.js"></script>
 </body>
 </html>
