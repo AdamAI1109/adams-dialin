@@ -1,0 +1,10 @@
+{
+  "name": "Adam's Dial-in",
+  "short_name": "Dial-in",
+  "description": "Adam's espresso dial-in assistant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F6F1E8",
+  "theme_color": "#405247"
+}
