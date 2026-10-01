@@ -12,3 +12,33 @@ main{max-width:640px;margin:auto;padding:14px}.card{background:#fff;border:1px s
 #history{font-size:12px;margin-top:10px}.hist{padding:8px 0;border-bottom:1px solid #eee}
 .sticky{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px max(12px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));background:#f6f1e8e8;backdrop-filter:blur(14px);z-index:30}.sticky button{border:0;border-radius:14px;padding:14px}.sticky #analyze{flex:1;background:var(--g);color:#fff;font-weight:700}.sticky #reset{background:#ddd5c9;color:#5c5146}
 @media(max-width:420px){main{padding:10px}.card{padding:14px}.knob-wrap{height:196px}}
+/* v1.17 knob cleanup */
+.dial,.mark,.num,.tick{display:none!important}
+.center-logo{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:58px!important;
+  height:52px!important;
+  object-fit:contain!important;
+  display:block!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  opacity:1!important;
+  image-rendering:auto!important;
+  z-index:5!important;
+  pointer-events:none!important
+}
+.brand-logo{
+  object-fit:contain!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  image-rendering:auto!important
+}
