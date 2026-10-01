@@ -1,0 +1,72 @@
+:root{--g:#405247;--g2:#2f3e35;--iv:#f6f1e8;--br:#8a6a4a;--gr:#9aa096;--line:#ddd5c9;--red:#a65b50}
+*{box-sizing:border-box}body{margin:0;background:var(--iv);color:#2b302c;font-family:"Gowun Dodum",-apple-system,sans-serif;padding-bottom:100px}button,input{font:inherit}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(64,82,71,.96);color:#fff}
+.eyebrow,.ver,.dir,.roasts button{font-family:"Arvo",serif}.eyebrow{font-size:9px;letter-spacing:.15em;opacity:.7}h1{font:700 23px "Arvo",serif;margin:1px 0}.sub{font-size:10px;opacity:.78}.ver{margin-left:auto;font-size:11px;background:#ffffff18;padding:5px 8px;border-radius:20px}
+main{max-width:640px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #ebe4d9;border-radius:20px;padding:16px;margin:0 0 12px;box-shadow:0 4px 14px #473d3010}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.section-head b{font-size:17px}.section-head span{font:700 9px "Arvo",serif;color:var(--br);letter-spacing:.12em}
+.roasts,.quick{display:flex;gap:7px;flex-wrap:wrap}.roasts button,.quick button,.secondary{border:1px solid var(--line);background:#faf8f4;border-radius:12px;padding:9px 11px}.roasts button.on,.quick button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.knob-wrap{position:relative;width:220px;height:205px;margin:0 auto}.pointer{position:absolute;top:2px;left:50%;transform:translateX(-50%);color:var(--br);font-size:16px;z-index:5}.knob{position:absolute;top:24px;left:50%;transform:translateX(-50%);width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#747a72,#4d544d 60%,#343a35);box-shadow:inset 0 4px 12px #ffffff22,0 8px 18px #0002;touch-action:none}.dial{position:absolute;inset:0}.mark{position:absolute;left:50%;top:50%;transform-origin:0 0;color:#fff}.num{font:700 12px "Arvo",serif}.tick{width:2px;height:8px;background:#eee;border-radius:2px}.dir{position:absolute;left:20px;right:20px;bottom:0;display:flex;justify-content:space-between;font-size:10px;color:var(--gr)}
+.live{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.live div{background:#f7f4ee;border-radius:12px;padding:10px;text-align:center}.live small{display:block;font-size:9px;color:#777}.live strong{font:700 13px "Arvo",serif}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid label{font-size:11px;color:#666}.grid input{width:100%;margin-top:5px;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fbfaf7;color:#222;font-family:"Arvo","Gowun Dodum",serif}
+.flavor{margin-top:14px}.fhead{display:flex;justify-content:space-between;font-size:12px}.state{color:var(--br);font-size:11px}.flavor input{width:100%;accent-color:var(--g)}
+.result h2{font-size:21px;margin:10px 0}.hidden{display:none}.badge{display:inline-block;background:#e8eee9;color:var(--g2);border-radius:999px;padding:5px 9px;font-size:11px}.compare{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:14px 0}.compare div{background:#f6f2ea;padding:12px;border-radius:14px;text-align:center}.compare small{display:block;color:#777}.compare b{font:700 18px "Arvo",serif}.reason{line-height:1.65}.plan{margin:12px 0;padding:12px;background:#f7f4ee;border-radius:14px}.plan div+div{margin-top:7px}.secondary{width:100%;margin-top:8px}
+#history{font-size:12px;margin-top:10px}.hist{padding:8px 0;border-bottom:1px solid #eee}
+.sticky{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px max(12px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));background:#f6f1e8e8;backdrop-filter:blur(14px);z-index:30}.sticky button{border:0;border-radius:14px;padding:14px}.sticky #analyze{flex:1;background:var(--g);color:#fff;font-weight:700}.sticky #reset{background:#ddd5c9;color:#5c5146}
+@media(max-width:420px){main{padding:10px}.card{padding:14px}.knob-wrap{height:196px}}
+/* v1.17 knob cleanup */
+.dial,.mark,.num,.tick{display:none!important}
+
+
+
+
+/* v1.20 exact logo from working v0 build */
+.brand-logo{
+  width:44px;
+  height:40px;
+  object-fit:contain;
+  display:block;
+  flex:0 0 auto;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+.center-logo{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:24px;
+  height:22px;
+  object-fit:contain;
+  display:block;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  pointer-events:none;
+  z-index:6;
+}
+
+/* v1.21 layout refinements */
+.brand-logo{
+  width:29px!important;
+  height:27px!important;
+}
+.roasts{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:6px!important;
+  flex-wrap:nowrap!important;
+}
+.roasts button{
+  width:100%!important;
+  min-width:0!important;
+  padding:9px 4px!important;
+  font-size:clamp(10px,2.7vw,13px)!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+@media(max-width:420px){
+  .roasts{gap:5px!important}
+  .roasts button{padding:9px 2px!important;font-size:10.5px!important}
+}
