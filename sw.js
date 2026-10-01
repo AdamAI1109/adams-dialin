@@ -1,5 +1,11 @@
-const CACHE="adams-dialin-v1.19";
-const ASSETS=["./","./index.html","./style.css","./app.js","./logo.png","./manifest.webmanifest"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{let y=x.clone();caches.open(CACHE).then(c=>c.put(e.request,y));return x})))});
+const CACHE_PREFIX="adams-dialin-";
+self.addEventListener("install",function(){self.skipWaiting();});
+self.addEventListener("activate",function(e){
+  e.waitUntil((async function(){
+    const ks=await caches.keys();
+    await Promise.all(ks.filter(function(k){return k.startsWith(CACHE_PREFIX);}).map(function(k){return caches.delete(k);}));
+    await self.registration.unregister();
+    await self.clients.claim();
+  })());
+});
+self.addEventListener("fetch",function(){});
