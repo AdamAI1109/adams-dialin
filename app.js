@@ -6,7 +6,7 @@ const rc={light:[92,95,1.8,2.3],medium:[89,92,1.5,1.8],mediumdark:[88,91,1.4,1.7
 function micron(p){for(let i=0;i<cal.length-1;i++){let a=cal[i],b=cal[i+1];if(p===a[0])return a[1];if(p>a[0]&&p<b[0])return Math.round(a[1]+(p-a[0])*(b[1]-a[1])/(b[0]-a[0]));}let a=cal.at(-2),b=cal.at(-1);return Math.round(a[1]+(p-a[0])*(b[1]-a[1])/(b[0]-a[0]));}
 function kp(p){return Math.floor(p/10)+"+"+(p%10)}
 function state(v){return v===0?"없음":v<=2?"아주 약함":v<=4?"약함":v<=6?"중간":v<=8?"강함":"매우 강함"}
-function render(){ $("#knobText").textContent=kp(knob);$("#umText").textContent=micron(knob)+" µm";let d=+$("#dose").value,y=+$("#yield").value;$("#ratioText").textContent=d&&y?"1:"+(y/d).toFixed(2):"-";$("#knob").style.transform="translateX(-50%) rotate("+rot+"deg)"}
+function render(){ $("#knobText").textContent=kp(knob);$("#umText").textContent=micron(knob)+" µm";let d=+$("#dose").value,y=+$("#yield").value;$("#ratioText").textContent=d&&y?"1:"+(y/d).toFixed(2):"-";$("#knob").style.transform="translateX(-50%) rotate("+rot+"deg)";const km=$("#knobMark");if(km)km.style.transform="translate(-50%,-50%) rotate("+(-rot)+"deg)"}
 function build(){$("#dial").innerHTML="";tastes.forEach(([id,n],i)=>$("#sliders").insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="10" value="${id==="sweet"?5:0}"></div>`));}
 function refresh(){tastes.forEach(([id])=>$("#"+id+"S").textContent=state(+$("#"+id).value))}
 $$(".roasts button").forEach(b=>b.onclick=()=>{$$(".roasts button").forEach(x=>x.classList.remove("on"));b.classList.add("on");roast=b.dataset.roast});
