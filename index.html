@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v127.css">
+<link rel="stylesheet" href="./style-v130.css">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -27,9 +27,9 @@
 </head>
 <body>
 <header>
-  <img src="./adams-logo-exact.svg?v=122" class="brand-logo" alt="Adam's">
+  <img src="./adams-logo-exact.svg?v=130" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.29</span>
+  <span class="ver">v1.30</span>
 </header>
 
 <main>
@@ -47,7 +47,7 @@
     <div class="pointer">▼</div>
     <div id="knob" class="knob">
       <div id="dial" class="dial"></div>
-      <img src="./adams-logo-exact.svg?v=122" class="center-logo" alt="">
+      <img src="./adams-logo-exact.svg?v=130" class="center-logo" alt="">
     </div>
     <div class="dir"><span>COARSE</span><span>FINE</span></div>
   </div>
@@ -61,10 +61,18 @@
 <section class="card">
   <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div>
   <div class="grid">
-    <label>도징량 g<input id="dose" type="number" step=".1" value="20.5"></label>
-    <label>추출량 g<input id="yield" type="number" step=".1" value="34"></label>
-    <label>추출시간 s<input id="time" type="number" step=".1" value="27"></label>
-    <label>온도 °C<input id="temp" type="number" step=".5" value="90"></label>
+    <label>도징량 g
+      <div class="num-control"><button type="button" class="step-btn minus" data-target="dose" aria-label="도징량 줄이기">−</button><input id="dose" type="number" step=".1" value="22"><button type="button" class="step-btn plus" data-target="dose" aria-label="도징량 늘리기">+</button></div>
+    </label>
+    <label>추출량 g
+      <div class="num-control"><button type="button" class="step-btn minus" data-target="yield" aria-label="추출량 줄이기">−</button><input id="yield" type="number" step=".1" value="34"><button type="button" class="step-btn plus" data-target="yield" aria-label="추출량 늘리기">+</button></div>
+    </label>
+    <label>추출시간 s
+      <div class="num-control"><button type="button" class="step-btn minus" data-target="time" aria-label="추출시간 줄이기">−</button><input id="time" type="number" step="1" value="27"><button type="button" class="step-btn plus" data-target="time" aria-label="추출시간 늘리기">+</button></div>
+    </label>
+    <label>온도 °C
+      <div class="num-control"><button type="button" class="step-btn minus" data-target="temp" aria-label="온도 낮추기">−</button><input id="temp" type="number" step="1" value="92"><button type="button" class="step-btn plus" data-target="temp" aria-label="온도 높이기">+</button></div>
+    </label>
   </div>
 </section>
 
@@ -86,6 +94,6 @@
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app-v129.js"></script>
+<script src="./app-v130.js"></script>
 </body>
 </html>
