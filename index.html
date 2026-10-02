@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v140.css">
+<link rel="stylesheet" href="./style-v142.css">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -27,9 +27,9 @@
 </head>
 <body>
 <header>
-  <img src="./adams-logo-exact.svg?v=141" class="brand-logo" alt="Adam's">
+  <img src="./adams-logo-exact.svg?v=142" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.41</span>
+  <span class="ver">v1.42</span>
 </header>
 
 <main>
@@ -47,19 +47,19 @@
     <div class="pointer">▼</div>
     <div id="knob" class="knob">
       <div id="dial" class="dial"></div>
-      <img src="./adams-logo-exact.svg?v=141" class="center-logo" alt="">
+      <img src="./adams-logo-exact.svg?v=142" class="center-logo" alt="">
     </div>
     <div class="dir"><span>COARSE</span><span>FINE</span></div>
   </div>
   <div class="live">
     <div><small>현재 노브</small><strong id="knobText">0+9.0</strong></div>
-    <div><small>예상 간격</small><strong id="umText">153 µm</strong></div>
+    <div><small>노브 기준 µm</small><strong id="umText">153 µm</strong></div>
     <div><small>추출 비율</small><strong id="ratioText">1:1.66</strong></div>
   </div>
 </section>
 
 <section class="card">
-  <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div>
+  <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div><div class="time-basis">⏱ 추출시간 기준: <b>버튼을 누른 순간부터</b> · 프리인퓨전 포함</div>
   <div class="grid">
     <label>도징량 g
       <div class="num-control"><button type="button" class="step-btn minus" data-target="dose" aria-label="도징량 줄이기">−</button><input id="dose" type="number" step=".1" value="22.0"><button type="button" class="step-btn plus" data-target="dose" aria-label="도징량 늘리기">+</button></div>
@@ -83,20 +83,22 @@
 </section>
 
 <section id="result" class="card result hidden">
-  <span id="badge" class="badge">진단</span>
+  <div class="result-top"><span id="badge" class="badge">진단</span><div class="result-meta"><span id="stage">1차 조정</span><span id="confidence">신뢰도 · 중간</span></div></div>
   <h2 id="headline"></h2>
   <div class="compare"><div><small>현재</small><b id="cur"></b></div><span>→</span><div><small>목표</small><b id="target"></b></div></div>
   <div id="reason" class="reason"></div>
   <div id="oneChange" class="one-change hidden"></div>
   <div id="changes" class="changes hidden"></div>
   <div id="plan" class="plan"></div>
-  <button id="saveShot" class="secondary">이 샷 저장</button>
-  <div id="history"></div>
+  <div id="baselineCompare" class="baseline-compare hidden"></div>
+  <div class="result-actions"><button id="saveShot" class="secondary">이 샷 저장</button><button id="setBaseline" class="secondary">⭐ 기준 샷 지정</button></div>
+  <div id="baselineBox" class="baseline-box hidden"></div>
+  <div class="history-title">샷 히스토리</div><div id="history"></div>
 </section>
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app-v141.js"></script>
+<script src="./app-v142.js"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
