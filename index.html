@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v142.css">
+<link rel="stylesheet" href="./style-v143.css">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -27,9 +27,9 @@
 </head>
 <body>
 <header>
-  <img src="./adams-logo-exact.svg?v=142" class="brand-logo" alt="Adam's">
+  <img src="./adams-logo-exact.svg?v=143" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.42</span>
+  <span class="ver">v1.43</span>
 </header>
 
 <main>
@@ -47,7 +47,7 @@
     <div class="pointer">▼</div>
     <div id="knob" class="knob">
       <div id="dial" class="dial"></div>
-      <img src="./adams-logo-exact.svg?v=142" class="center-logo" alt="">
+      <img src="./adams-logo-exact.svg?v=143" class="center-logo" alt="">
     </div>
     <div class="dir"><span>COARSE</span><span>FINE</span></div>
   </div>
@@ -59,7 +59,7 @@
 </section>
 
 <section class="card">
-  <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div><div class="time-basis">⏱ 추출시간 기준: <b>버튼을 누른 순간부터</b> · 프리인퓨전 포함</div>
+  <div class="section-head"><b>현재 샷</b><span>STEP 3</span></div><div class="time-basis">⏱ 추출시간 기준: <b>버튼을 누른 순간부터</b> · 프리인퓨전 포함</div><div class="pi-basis">💧 프리인퓨전 기본: <b>2초 적심 + 5초 대기</b> · 총 7초</div>
   <div class="grid">
     <label>도징량 g
       <div class="num-control"><button type="button" class="step-btn minus" data-target="dose" aria-label="도징량 줄이기">−</button><input id="dose" type="number" step=".1" value="22.0"><button type="button" class="step-btn plus" data-target="dose" aria-label="도징량 늘리기">+</button></div>
@@ -89,7 +89,7 @@
   <div id="reason" class="reason"></div>
   <div id="oneChange" class="one-change hidden"></div>
   <div id="changes" class="changes hidden"></div>
-  <div id="plan" class="plan"></div>
+  <div id="piAdvice" class="pi-advice hidden"></div><div id="plan" class="plan"></div>
   <div id="baselineCompare" class="baseline-compare hidden"></div>
   <div class="result-actions"><button id="saveShot" class="secondary">이 샷 저장</button><button id="setBaseline" class="secondary">⭐ 기준 샷 지정</button></div>
   <div id="baselineBox" class="baseline-box hidden"></div>
@@ -98,7 +98,7 @@
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app-v142.js"></script>
+<script src="./app-v143.js"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
