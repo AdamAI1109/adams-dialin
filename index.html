@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v148.css">
+<link rel="stylesheet" href="./style-v149.css">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -27,9 +27,9 @@
 </head>
 <body>
 <header>
-  <img src="./adams-logo-exact.svg?v=148" class="brand-logo" alt="Adam's">
+  <img src="./adams-logo-exact.svg?v=149" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.48</span>
+  <span class="ver">v1.49</span>
 </header>
 
 <main>
@@ -47,15 +47,15 @@
     <div class="pointer">▼</div>
     <div id="knob" class="knob">
       <div id="dial" class="dial"></div>
-      <img src="./adams-logo-exact.svg?v=148" class="center-logo" alt="">
+      <img src="./adams-logo-exact.svg?v=149" class="center-logo" alt="">
     </div>
     <div class="dir"><span>COARSE</span><span>FINE</span></div>
   </div>
   <div class="live">
     <div><small>현재 노브</small><strong id="knobText">0+9.0</strong></div>
-    <div><small>노브 기준 µm</small><strong id="umText">153 µm</strong></div>
+    <div><small>노브 기준 µm*</small><strong id="umText">153 µm</strong></div>
     <div><small>추출 비율</small><strong id="ratioText">1:1.66</strong></div>
-  </div>
+  </div><div class="micron-note">* 입자 크기가 아니라 MYG85 노브 위치를 환산한 참고 버 간격</div>
 </section>
 
 <section class="card">
@@ -86,7 +86,7 @@
   <div class="result-top"><span id="badge" class="badge">진단</span><div class="result-meta"><span id="stage">1차 조정</span><span id="confidence">신뢰도 · 중간</span></div></div>
   <div id="shotSummary" class="shot-summary"></div><h2 id="headline"></h2>
   <div class="compare"><div><small>현재</small><b id="cur"></b></div><span>→</span><div><small>목표</small><b id="target"></b></div></div>
-  <div id="reason" class="reason"></div><div id="diagnosis" class="diagnosis hidden"></div>
+  <div id="reason" class="reason"></div><div id="comparisonQuality" class="comparison-quality hidden"></div><div id="diagnosis" class="diagnosis hidden"></div>
   <div id="oneChange" class="one-change hidden"></div>
   <div id="changes" class="changes hidden"></div>
   <div id="piAdvice" class="pi-advice hidden"></div><div id="plan" class="plan"></div>
@@ -98,7 +98,7 @@
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app-v148.js"></script>
+<script src="./app-v149.js"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
