@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v151.css">
+<link rel="stylesheet" href="./style-v152.css">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -27,9 +27,9 @@
 </head>
 <body>
 <header>
-  <img src="./adams-logo-exact.svg?v=151" class="brand-logo" alt="Adam's">
+  <img src="./adams-logo-exact.svg?v=152" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.51</span>
+  <span class="ver">v1.52</span>
 </header>
 
 <main>
@@ -43,19 +43,24 @@
 
 <section class="card">
   <div class="section-head"><b>MYG85 노브</b><span>STEP 2</span></div>
-  <div class="knob-wrap">
-    <div class="pointer">▼</div>
-    <div id="knob" class="knob">
-      <div id="dial" class="dial"></div>
-      <img src="./adams-logo-exact.svg?v=151" class="center-logo" alt="">
+  <div id="knob" class="legacy-knob" aria-hidden="true"></div>
+  <div class="knob-stepper">
+    <div class="knob-direction"><span>← FINE</span><span>COARSE →</span></div>
+    <div class="knob-control">
+      <button type="button" id="knobFine" class="knob-step-btn" aria-label="FINE 한 칸">−</button>
+      <div class="knob-value">
+        <small>현재 노브</small>
+        <strong id="knobText">0+9.0</strong>
+        <span id="umText">153 µm</span>
+      </div>
+      <button type="button" id="knobCoarse" class="knob-step-btn" aria-label="COARSE 한 칸">+</button>
     </div>
-    <div class="dir"><span>COARSE</span><span>FINE</span></div>
+    <input id="knobSlider" class="knob-slider" type="range" min="0" max="150" step="1" value="54" aria-label="노브 빠른 이동">
+    <div class="knob-help"><span>− / + 한 번 = 실제 눈금 1칸</span><span>슬라이더 = 빠른 이동</span></div>
   </div>
-  <div class="live">
-    <div><small>현재 노브</small><strong id="knobText">0+9.0</strong></div>
-    <div><small>노브 기준 µm*</small><strong id="umText">153 µm</strong></div>
+  <div class="live compact-live">
     <div><small>추출 비율</small><strong id="ratioText">1:1.66</strong></div>
-  </div><div class="micron-note">* 입자 크기가 아니라 MYG85 노브 위치를 환산한 참고 버 간격</div>
+  </div><div class="micron-note">* µm는 입자 크기가 아니라 MYG85 노브 위치를 환산한 참고 버 간격</div>
 </section>
 
 <section class="card">
@@ -78,7 +83,7 @@
 
 <section class="card">
   <div class="section-head"><b>맛 입력</b><span>STEP 4</span></div>
-  <div class="quick"><button data-preset="sour">시다</button><button data-preset="bitter">쓰다</button><button data-preset="mixed">쓰고 시다</button></div>
+  <div class="quick"><button data-preset="sour">시다</button><button data-preset="bitter">쓰다</button><button data-preset="mixed">쓰고 시다</button></div><button type="button" id="resetTaste" class="taste-reset">맛 입력만 초기화</button>
   <div id="sliders"></div>
 </section>
 
@@ -91,6 +96,7 @@
   <div id="changes" class="changes hidden"></div>
   <div id="piAdvice" class="pi-advice hidden"></div><div id="plan" class="plan"></div>
   <div id="baselineCompare" class="baseline-compare hidden"></div>
+  <div class="workflow-actions"><button id="applyRec" class="apply-rec">추천값 적용</button><button id="nextShot" class="next-shot">다음 샷 시작</button></div>
   <div class="result-actions"><button id="saveShot" class="secondary">이 샷 저장</button><button id="setBaseline" class="secondary">⭐ 기준 샷 지정</button></div>
   <div id="baselineBox" class="baseline-box hidden"></div>
   <div class="history-title">샷 히스토리</div><div id="history"></div>
@@ -98,7 +104,7 @@
 </main>
 
 <div class="sticky"><button id="analyze">다음 샷 추천</button><button id="reset">초기화</button></div>
-<script src="./app-v151.js"></script>
+<script src="./app-v152.js"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
