@@ -918,3 +918,6 @@ button{
   margin-top:12px!important;
 }
 #knobCompare.hidden{display:none!important}
+
+/* v1.61 mobile-first progressive disclosure */
+.expert-details{border:1px solid #d8ded6;border-radius:12px;padding:10px 12px;margin:10px 0;background:#f8faf7}.expert-details summary{cursor:pointer;font-weight:700;font-size:14px}.expert-details small{display:block;line-height:1.5;margin-top:8px;color:#59675e}.pi-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.pi-inputs label{font-size:13px;font-weight:600}.pi-inputs input{display:block;width:100%;box-sizing:border-box;min-height:42px;margin-top:5px;padding:7px;border-radius:8px;border:1px solid #b6c2b8}.expert-details .legacy-knob{margin:12px auto}.history-title button{margin-left:8px;font-size:12px}.flavor input[type=range]{touch-action:pan-y;min-height:28px}
