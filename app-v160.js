@@ -70,7 +70,10 @@ function parseKnobText(v){
   if(!m)return null;
   return {t:+m[1],m:+m[2],s:+m[3]};
 }
-function state(v){const labels=["없음","거의 없음","매우 미미함","미미함","약함","보통","약간 강함","조금 강함","강함","매우 강함","극도로 강함"];const n=Math.max(0,Math.min(10,Math.round(v)));return n+" · "+labels[n]}
+// New 0–5 sensory UI. The existing diagnosis engine and legacy records remain on 0–10.
+const sensoryToEngine=v=>Math.max(0,Math.min(5,Number(v)||0))*2;
+const displayTaste=(v,scale)=>scale===5?String(v??0):String(v??0)+"/10 (이전 기준)";
+function state(v){const labels=["없음","감지됨","뚜렷함","꽤 강함","강함 · 다른 맛을 가림","매우 강함 · 지배적"];const n=Math.max(0,Math.min(5,Math.round(v)));return n+" · "+labels[n]}
 function render(){
   $("#knobText").textContent=kp();
   $("#umText").textContent=micron(knobValue())+" µm";
@@ -78,10 +81,10 @@ function render(){
   let d=+$("#dose").value,y=+$("#yield").value;
   $("#ratioText").textContent=d&&y?"1:"+(y/d).toFixed(2):"-";
 }
-function build(){const sliders=$("#sliders");if(!sliders)return;sliders.innerHTML="";tastes.forEach(([id,n])=>sliders.insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="10" value="0"></div>`));}
+function build(){const sliders=$("#sliders");if(!sliders)return;sliders.innerHTML="";tastes.forEach(([id,n])=>sliders.insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="5" step="1" value="0" aria-label="${n} 강도, 0은 없음, 1은 감지, 3은 꽤 강함"></div>`));}
 function refresh(){tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value)})}
 qsa(".roasts button").forEach(b=>b.onclick=()=>{qsa(".roasts button").forEach(x=>x.classList.remove("on"));b.classList.add("on");roast=b.dataset.roast});
-qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if(b.dataset.preset==="sour"){$("#sour").value=8;$("#thin").value=5;$("#hollow").value=4}if(b.dataset.preset==="bitter"){$("#bitter").value=8;$("#dry").value=5}if(b.dataset.preset==="mixed"){$("#sour").value=7;$("#bitter").value=7;$("#dry").value=5}refresh()});
+qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if(b.dataset.preset==="sour"){$("#sour").value=4;$("#thin").value=3;$("#hollow").value=2}if(b.dataset.preset==="bitter"){$("#bitter").value=4;$("#dry").value=3}if(b.dataset.preset==="mixed"){$("#sour").value=3;$("#bitter").value=3;$("#dry").value=3}refresh()});
 const resetTaste=$("#resetTaste");
 if(resetTaste)resetTaste.onclick=()=>{
   tastes.forEach(([id])=>$("#"+id).value=0);
@@ -147,8 +150,8 @@ function showInputWarning(message){
 
 function currentTasteVector(){
   return {
-    sour:+$("#sour").value,bright:+$("#bright").value,bitter:+$("#bitter").value,dry:+$("#dry").value,
-    thin:+$("#thin").value,heavy:+$("#heavy").value,hollow:+$("#hollow").value,sweet:+$("#sweet").value
+    sour:sensoryToEngine($("#sour").value),bright:sensoryToEngine($("#bright").value),bitter:sensoryToEngine($("#bitter").value),dry:sensoryToEngine($("#dry").value),
+    thin:sensoryToEngine($("#thin").value),heavy:sensoryToEngine($("#heavy").value),hollow:sensoryToEngine($("#hollow").value),sweet:sensoryToEngine($("#sweet").value)
   };
 }
 function loadLastAnalysis(){
@@ -190,7 +193,7 @@ function shotSnapshot(){
   const d=+$("#dose").value,y=+$("#yield").value,t=+$("#time").value,tmp=+$("#temp").value;
   return {
     kt:turn,km:major,ks:sub,knob:kp(),d,y,t,tmp,ratio:d?y/d:0,
-    tastes:currentTasteVector(),ts:Date.now()
+    tastes:currentTasteVector(),tasteScale:5,ts:Date.now()
   };
 }
 function baselineSummaryHtml(b){
@@ -1036,7 +1039,7 @@ $("#analyze").onclick=()=>{
 
   const nextSettings=deriveNextSettings(primaryChange,targetText,{d,y,t,tmp});
   saveLastAnalysis({
-    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,
+    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,tasteScale:5,
     dose:d,yield:y,time:t,temp:tmp,ratio:r,primaryVariable:pv,variableStreak,
     recommendedPrimary:primaryChange,comparisonQuality:audit.level,nextSettings
   });
@@ -1079,7 +1082,7 @@ function showHist(){
     const knob=x.knob||(x.kt!==undefined?kp(x.kt,x.km,x.ks):String(x.k??"-"));
     const tv=x.tastes||{};
     const isBase=baseline && (baseline.ts&&x.ts===baseline.ts);
-    const tasteLine=x.tastes?`<div class="hist-tastes">🍋 ${tv.sour} · ✨ ${tv.bright??0} · ☕ ${tv.bitter} · 🍯 ${tv.sweet}</div>`:"";
+    const tasteLine=x.tastes?`<div class="hist-tastes">${x.tasteScale===5?"새 척도 (0~5, 내부 환산값)":"이전 기록 (0~10)"} · 🍋 ${x.tasteScale===5?tv.sour/2:tv.sour} · ✨ ${x.tasteScale===5?(tv.bright??0)/2:(tv.bright??0)} · ☕ ${x.tasteScale===5?tv.bitter/2:tv.bitter} · 🍯 ${x.tasteScale===5?tv.sweet/2:tv.sweet}</div>`:"";
     return `<div class="hist-card"><div class="hist-head"><span>#${H.length-i}</span><b>${knob}</b>${isBase?'<em>기준</em>':''}</div><div class="hist-shot">${Number(x.d).toFixed(1)}→${Number(x.y).toFixed(1)}g · ${x.t}s · ${x.tmp}°C</div>${tasteLine}</div>`;
   }).join("");
 }
