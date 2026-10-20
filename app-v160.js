@@ -73,7 +73,7 @@ function parseKnobText(v){
 // New 0–5 sensory UI. The existing diagnosis engine and legacy records remain on 0–10.
 const sensoryToEngine=v=>Math.max(0,Math.min(5,Number(v)||0))*2;
 const displayTaste=(v,scale)=>scale===5?String(v??0):String(v??0)+"/10 (이전 기준)";
-function state(v){const labels=["없음","감지됨","뚜렷함","꽤 강함","강함 · 다른 맛을 가림","매우 강함 · 지배적"];const n=Math.max(0,Math.min(5,Math.round(v)));return n+" · "+labels[n]}
+function state(v,id=""){const n=Math.max(0,Math.min(5,Math.round(v)));const general=["없음","감지됨","뚜렷함","꽤 강함","강함 · 다른 맛을 가림","매우 강함 · 지배적"];const watery=["전혀 묽지 않음","살짝 묽음","묽음이 뚜렷함","꽤 묽음","물 같은 느낌이 강함","매우 묽음"];const body=["무게감 거의 없음","매우 가벼움","가벼움","중간 바디","묵직함","매우 묵직함"];return n+" · "+(id==="thin"?watery:id==="bodyScore"?body:general)[n]}
 function render(){
   $("#knobText").textContent=kp();
   $("#umText").textContent=micron(knobValue())+" µm";
@@ -87,7 +87,7 @@ function build(){
   const makeTaste=([id,name])=>`<div class="flavor flavor-buttons"><div class="fhead"><span>${name}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="hidden" value="0"><div class="taste-buttons" role="group" aria-label="${name} 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="${id}" data-score="${n}" aria-pressed="${n===0}">${n}</button>`).join("")}</div></div>`;
   sliders.innerHTML=tastes.filter(([id])=>primary.includes(id)).map(makeTaste).join("")+
     `<div class="flavor flavor-buttons"><div class="fhead"><span>☕ 바디 (0 가벼움 · 5 묵직함)</span><span id="bodyS" class="state"></span></div><input id="bodyScore" type="hidden" value="3"><div class="taste-buttons" role="group" aria-label="바디 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="bodyScore" data-score="${n}" aria-pressed="${n===3}">${n}</button>`).join("")}</div></div>`+
-    `<details class="expert-details"><summary>상세 향미 평가 (좋은 산미 · 떫음 · 묽음 · 무거움 · 빈 맛)</summary><div class="advanced-flavors">${tastes.filter(([id])=>!primary.includes(id)).map(makeTaste).join("")}</div></details>`;
+    `<details class="expert-details"><summary>상세 향미 평가 (좋은 산미 · 떫음 · 무거움 · 빈 맛)</summary><div class="advanced-flavors">${tastes.filter(([id])=>!primary.includes(id)).map(makeTaste).join("")}</div></details>`;
   sliders.addEventListener("click",e=>{
     const btn=e.target.closest("button[data-flavor]");if(!btn)return;
     const id=btn.dataset.flavor,value=Number(btn.dataset.score);
@@ -97,8 +97,8 @@ function build(){
   });
 }
 function refresh(){
-  tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value)});
-  const body=$("#bodyScore");if(body)$("#bodyS").textContent=body.value+" / 5";
+  tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value,id)});
+  const body=$("#bodyScore");if(body)$("#bodyS").textContent=state(+body.value,"bodyScore");
   qsa(".taste-buttons button").forEach(b=>{const active=Number($("#"+b.dataset.flavor)?.value)===Number(b.dataset.score);b.classList.toggle("selected",active);b.setAttribute("aria-pressed",String(active));});
 }
 qsa(".roasts button").forEach(b=>b.onclick=()=>{qsa(".roasts button").forEach(x=>x.classList.remove("on"));b.classList.add("on");roast=b.dataset.roast});
