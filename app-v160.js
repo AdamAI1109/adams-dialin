@@ -189,11 +189,12 @@ function stageLabel(balanced,repeatCount,move,direction){
   if(repeatCount===2)return "2차 조정";
   return "1차 조정";
 }
+function piSettings(){return {wet:Number($("#piWet")?.value??2),wait:Number($("#piWait")?.value??5)};}
 function shotSnapshot(){
   const d=+$("#dose").value,y=+$("#yield").value,t=+$("#time").value,tmp=+$("#temp").value;
   return {
     kt:turn,km:major,ks:sub,knob:kp(),d,y,t,tmp,ratio:d?y/d:0,
-    tastes:currentTasteVector(),tasteScale:5,ts:Date.now()
+    tastes:currentTasteVector(),tasteScale:5,pi:piSettings(),ts:Date.now()
   };
 }
 function baselineSummaryHtml(b){
@@ -448,7 +449,9 @@ function preinfusionAdvice({repeatCount,direction,move,mixed,timeChange,t,sourCh
 $("#analyze").onclick=()=>{
   const doseEl=$("#dose"), yieldEl=$("#yield"), timeEl=$("#time"), tempEl=$("#temp");
   const d=+doseEl.value,y=+yieldEl.value,t=+timeEl.value,tmp=+tempEl.value;
-  const inputError=validateShotInputs(d,y,t,tmp);
+  const piConfig=piSettings();
+  const piError=(!Number.isFinite(piConfig.wet)||!Number.isFinite(piConfig.wait)||piConfig.wet<0||piConfig.wait<0||piConfig.wet>20||piConfig.wait>30||piConfig.wet+piConfig.wait>=t)?"적심·대기 시간 설정을 확인하세요. 합계는 전체 추출시간보다 짧아야 합니다.":"";
+  const inputError=validateShotInputs(d,y,t,tmp)||piError;
   if(inputError){
     showInputWarning(inputError);
     doseEl.closest(".card")?.scrollIntoView({behavior:"smooth",block:"start"});
@@ -467,7 +470,8 @@ $("#analyze").onclick=()=>{
   const last=loadLastAnalysis();
   const curKnob=kp();
   const audit=comparisonAudit(last,{d,y,t,tmp,curKnob});
-  const repeatGuard=repeatabilityGuard(last,{d,y,t,tmp,curKnob});
+  const piChanged=!!(last?.pi&&(last.pi.wet!==piConfig.wet||last.pi.wait!==piConfig.wait));
+  const repeatGuard=piChanged?null:repeatabilityGuard(last,{d,y,t,tmp,curKnob});
 
   let b="미세조정",h="한 변수만 미세 조정";
   let why="한쪽 결점이 뚜렷하지 않아 아주 작은 조정이 좋습니다.";
@@ -936,7 +940,7 @@ $("#analyze").onclick=()=>{
   // If dose, beverage yield, temperature or roast changed, do not infer seconds per step.
   if(move>=0.1 && (direction==="fine" || direction==="coarse") && primaryChange.startsWith(direction==="fine"?"FINE":"COARSE")){
     const sameRecipe=last && Math.abs(d-(last.dose??d))<0.15 &&
-      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5;
+      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5 && !piChanged;
     const priorMove=Number(last?.move||0);
     const observedSeconds=Math.abs(timeChange);
     const expectedSign=direction==="fine"?1:-1;
@@ -985,6 +989,7 @@ $("#analyze").onclick=()=>{
   if(repeatGuard)confidence="낮음";
   const stage = stageLabel(balanced,repeatCount,move,direction);
   const piRec = preinfusionAdvice({repeatCount,direction,move,mixed,timeChange,t,sourChange,overChange});
+  if(piRec.show){piRec.text=piRec.text.replaceAll("2초 적심",piConfig.wet+"초 적심").replaceAll("5초",piConfig.wait+"초").replaceAll("6초",(piConfig.wait+1)+"초").replaceAll("4초",Math.max(0,piConfig.wait-1)+"초");}
 
   $("#badge").textContent=b;
   $("#shotSummary").textContent=shotSummaryText(tv,t,r,c,mixed);
@@ -1086,7 +1091,7 @@ $("#analyze").onclick=()=>{
   const nextSettings=deriveNextSettings(primaryChange,targetText,{d,y,t,tmp});
   saveLastAnalysis({
     current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,tasteScale:5,
-    dose:d,yield:y,time:t,temp:tmp,ratio:r,primaryVariable:pv,variableStreak,
+    dose:d,yield:y,time:t,temp:tmp,pi:piConfig,ratio:r,primaryVariable:pv,variableStreak,
     recommendedPrimary:primaryChange,comparisonQuality:audit.level,nextSettings
   });
 };
@@ -1121,6 +1126,12 @@ function showBaseline(){
   box.classList.remove("hidden");
   box.innerHTML=baselineSummaryHtml(b);
 }
+const exportHistory=$("#exportHistory");
+if(exportHistory)exportHistory.onclick=()=>{
+  const payload={app:"Adams Dial-in",exportedAt:new Date().toISOString(),shots:JSON.parse(localStorage.getItem("shots")||"[]"),baseline:loadBaseline(),lastAnalysis:loadLastAnalysis()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="adams-dialin-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+};
 function showHist(){
   const H=JSON.parse(localStorage.getItem("shots")||"[]");
   const baseline=loadBaseline();
