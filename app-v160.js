@@ -207,12 +207,29 @@ function stageLabel(balanced,repeatCount,move,direction){
   if(repeatCount===2)return "2차 조정";
   return "1차 조정";
 }
+const DRINK_NAMES={"iced-americano":"아이스 아메리카노","hot-americano":"따뜻한 아메리카노",espresso:"에스프레소","hot-latte":"따뜻한 라떼","iced-latte":"아이스 라떼"};
+function drinkSettings(){
+  const mode=$("#drinkMode")?.value||"iced-americano";
+  return {mode,water:mode==="iced-americano"?200:Number($("#drinkWater")?.value||0),ice:$("#drinkIce")?.value===""?null:Number($("#drinkIce")?.value),milk:Number($("#drinkMilk")?.value||0),consistent:!!$("#drinkConsistent")?.checked};
+}
+function renderDrink(){
+  const mode=$("#drinkMode")?.value||"iced-americano",box=$("#drinkRecipe");if(!box)return;
+  const input=(id,label,val)=>`<label style="display:inline-block;margin:6px 10px 6px 0">${label}<input id="${id}" type="number" min="0" step="1" value="${val}" style="display:block;width:110px;padding:9px;border-radius:8px;border:1px solid #aaa"></label>`;
+  let html="";
+  if(mode==="iced-americano")html=input("drinkWater","물 g (고정)",200)+input("drinkIce","얼음 g (선택)","");
+  else if(mode==="hot-americano")html=input("drinkWater","물 g","");
+  else if(mode==="hot-latte")html=input("drinkMilk","우유 g","");
+  else if(mode==="iced-latte")html=input("drinkMilk","우유 g","")+input("drinkIce","얼음 g (선택)","");
+  box.innerHTML=html+`<div style="font-size:12px;color:#526359;line-height:1.5">${mode==="iced-americano"?"500mL 컵 · 물 200g → 얼음 → 에스프레소 · 완성 직후 시음":"같은 음료 제조 조건으로 비교하세요."}</div>`;
+  if(mode==="iced-americano")$("#drinkWater").readOnly=true;
+}
+$("#drinkMode")?.addEventListener("change",renderDrink);
 function piSettings(){return {wet:Number($("#piWet")?.value??2),wait:Number($("#piWait")?.value??5)};}
 function shotSnapshot(){
   const d=+$("#dose").value,y=+$("#yield").value,t=+$("#time").value,tmp=+$("#temp").value;
   return {
     kt:turn,km:major,ks:sub,knob:kp(),d,y,t,tmp,ratio:d?y/d:0,
-    tastes:currentTasteVector(),bodyScore:Number($("#bodyScore")?.value??3),tasteScale:5,pi:piSettings(),ts:Date.now()
+    tastes:currentTasteVector(),bodyScore:Number($("#bodyScore")?.value??3),tasteScale:5,pi:piSettings(),drink:drinkSettings(),ts:Date.now()
   };
 }
 function baselineSummaryHtml(b){
@@ -486,10 +503,12 @@ $("#analyze").onclick=()=>{
   const mixed=S>=6 && (B>=6 || D>=6);
 
   const last=loadLastAnalysis();
+  const drink=drinkSettings();
+  const comparableDrink=!!(last?.drink&&last.drink.mode===drink.mode&&last.drink.water===drink.water&&last.drink.ice===drink.ice&&last.drink.milk===drink.milk&&last.drink.consistent&&drink.consistent);
   const curKnob=kp();
   const audit=comparisonAudit(last,{d,y,t,tmp,curKnob});
   const piChanged=!!(last?.pi&&(last.pi.wet!==piConfig.wet||last.pi.wait!==piConfig.wait));
-  const repeatGuard=piChanged?null:repeatabilityGuard(last,{d,y,t,tmp,curKnob});
+  const repeatGuard=(piChanged||!comparableDrink)?null:repeatabilityGuard(last,{d,y,t,tmp,curKnob});
 
   let b="미세조정",h="한 변수만 미세 조정";
   let why="한쪽 결점이 뚜렷하지 않아 아주 작은 조정이 좋습니다.";
@@ -958,7 +977,7 @@ $("#analyze").onclick=()=>{
   // If dose, beverage yield, temperature or roast changed, do not infer seconds per step.
   if(move>=0.1 && (direction==="fine" || direction==="coarse") && primaryChange.startsWith(direction==="fine"?"FINE":"COARSE")){
     const sameRecipe=last && Math.abs(d-(last.dose??d))<0.15 &&
-      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5 && !piChanged;
+      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5 && !piChanged && comparableDrink;
     const priorMove=Number(last?.move||0);
     const observedSeconds=Math.abs(timeChange);
     const expectedSign=direction==="fine"?1:-1;
@@ -999,6 +1018,12 @@ $("#analyze").onclick=()=>{
       :"비교 가능한 노브 반응 데이터가 부족해 초기 시험 폭을 제시했습니다. MYG85의 고정 공식은 아닙니다.");
   }
 
+  if(drink.mode!=="espresso" && T>=4 && !comparableDrink){
+    direction="hold";move=0;targetText=curKnob;primaryChange="음료 제조 조건 확인";
+    b="희석 상태 확인";h="추출 조정보다 음료 제조 조건부터 확인";
+    why="워터리는 추출 상태 외에도 물·얼음·우유와 혼합 상태에 영향을 받습니다. 제조 조건을 먼저 일정하게 해야 추출 변수의 효과를 구분할 수 있습니다.";
+    steps=["분쇄도·도징·추출량 유지","물·얼음·우유량과 혼합 방법 확인","같은 조건에서 완성 직후 재시음"];
+  }
   const repeatCount = appliedLast && last.direction===direction ? (last.repeatCount||1)+1 : 1;
   const balanced = W>=7 && Math.max(S,B,D,T,H,O)<=3;
   let confidence = confidenceLabel(delta,mixed,tv);
@@ -1108,8 +1133,8 @@ $("#analyze").onclick=()=>{
 
   const nextSettings=deriveNextSettings(primaryChange,targetText,{d,y,t,tmp});
   saveLastAnalysis({
-    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,tasteScale:5,
-    dose:d,yield:y,time:t,temp:tmp,pi:piConfig,ratio:r,primaryVariable:pv,variableStreak,
+    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,tasteScale:5,drink,
+    dose:d,yield:y,time:t,temp:tmp,pi:piConfig,drink,ratio:r,primaryVariable:pv,variableStreak,
     recommendedPrimary:primaryChange,comparisonQuality:audit.level,nextSettings
   });
 };
@@ -1162,7 +1187,7 @@ function showHist(){
   }).join("");
 }
 $("#reset").onclick=()=>{try{localStorage.removeItem("lastAnalysis")}catch(e){};turn=0;major=9;sub=0;rot=-324;setKnobFromIndex(54);$("#dose").value="22.0";$("#yield").value="35.0";$("#time").value="27";$("#temp").value="92";tastes.forEach(([id])=>$("#"+id).value=0);if($("#bodyScore"))$("#bodyScore").value=3;$("#result").classList.add("hidden");$("#oneChange").classList.add("hidden");$("#changes").classList.add("hidden");$("#baselineCompare").classList.add("hidden");$("#piAdvice").classList.add("hidden");$("#diagnosis").classList.add("hidden");$("#comparisonQuality").classList.add("hidden");$("#mechanism").classList.add("hidden");$("#teacherNotes").classList.add("hidden");showInputWarning("");refresh();render()};
-build();refresh();render();showHist();showBaseline();
+renderDrink();build();refresh();render();showHist();showBaseline();
 const errBox=$("#appError");
 if(errBox && $("#sliders")?.children.length>0) errBox.classList.add("hidden");
 if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
