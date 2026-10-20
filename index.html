@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v160.css?v=161">
+<link rel="stylesheet" href="./style-v160.css?v=162">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -29,7 +29,7 @@
 <header>
   <img src="./adams-logo-exact.svg?v=160" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.61</span>
+  <span class="ver">v1.62</span>
 </header>
 
 <div id="appError" class="app-error hidden">앱을 불러오는 중 문제가 생겼어요. 새로고침 후에도 계속되면 알려주세요.</div><main>
@@ -43,7 +43,7 @@
 
 <section class="card">
   <div class="section-head"><b>현재 분쇄도</b><span>STEP 2</span></div>
-  <details class="expert-details"><summary>정밀 노브 그림 보기</summary><div id="knob" class="legacy-knob" aria-hidden="true"></div></details>
+  
   <div class="knob-stepper">
     <div class="knob-direction"><span>← FINE</span><span>COARSE →</span></div>
     <div class="knob-control">
@@ -56,7 +56,7 @@
       <button type="button" id="knobCoarse" class="knob-step-btn" aria-label="COARSE 한 칸">+</button>
     </div>
     <input id="knobSlider" class="knob-slider" type="range" min="0" max="150" step="1" value="54" aria-label="노브 빠른 이동">
-    <div class="knob-help"><span>− / + 한 번 = 실제 눈금 1칸</span><span>슬라이더 = 빠른 이동</span></div>
+    <div class="knob-help"><span>− / + 한 번 = 실제 눈금 0.1</span><span>슬라이더 = 빠른 이동</span></div>
   </div>
   <div class="live compact-live">
     <div><small>추출 비율</small><strong id="ratioText">1:1.66</strong></div>
@@ -105,7 +105,7 @@
 </main>
 
 <div class="sticky"><button id="analyze">3 · 다음 샷 분석</button><button id="reset">초기화</button></div>
-<script src="./app-v160.js?v=161"></script>
+<script src="./app-v160.js?v=162"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
