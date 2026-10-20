@@ -3,7 +3,7 @@ window.addEventListener("error",e=>{const el=document.querySelector("#appError")
 const $=s=>document.querySelector(s),qsa=s=>[...document.querySelectorAll(s)];
 const cal=[[15,280],[16,297],[17,310],[18,333],[19,376],[20,393],[21,405],[22,437],[25,502]];
 let turn=0,major=9,sub=0,roast="medium",rot=-324,drag=false,last=0,acc=0;
-const tastes=[["sour","🍋 날카로운 신맛"],["bright","✨ 좋은 산미 / 화사함"],["bitter","☕ 쓴맛 / 로스티함"],["dry","🌿 떫음 / 건조감"],["thin","💧 묽음 / 밋밋함"],["heavy","🧱 무거움 / 답답함"],["hollow","🕳️ 빈 맛 / 짧은 피니시"],["sweet","🍯 단맛 / 균형감"]];
+const tastes=[["sour","🍋 날카로운 신맛"],["bright","✨ 좋은 산미 / 화사함"],["bitter","☕ 쓴맛 / 로스티함"],["dry","🌿 떫음 / 건조감"],["thin","💧 워터리 / 묽음"],["heavy","🧱 무거움 / 답답함"],["hollow","🕳️ 빈 맛 / 짧은 피니시"],["sweet","🍯 단맛 / 균형감"]];
 const rc={light:[92,95,1.8,2.3],medium:[89,92,1.5,1.8],mediumdark:[88,91,1.4,1.7],dark:[86,89,1.3,1.6]};
 function micron(p){
   if(p<=0)return 0;
