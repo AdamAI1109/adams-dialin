@@ -83,7 +83,7 @@ function render(){
 }
 function build(){
   const sliders=$("#sliders");if(!sliders)return;
-  const primary=["sour","bitter","sweet"];
+  const primary=["sour","bitter","sweet","thin"];
   const makeTaste=([id,name])=>`<div class="flavor flavor-buttons"><div class="fhead"><span>${name}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="hidden" value="0"><div class="taste-buttons" role="group" aria-label="${name} 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="${id}" data-score="${n}" aria-pressed="${n===0}">${n}</button>`).join("")}</div></div>`;
   sliders.innerHTML=tastes.filter(([id])=>primary.includes(id)).map(makeTaste).join("")+
     `<div class="flavor flavor-buttons"><div class="fhead"><span>☕ 바디 (0 가벼움 · 5 묵직함)</span><span id="bodyS" class="state"></span></div><input id="bodyScore" type="hidden" value="3"><div class="taste-buttons" role="group" aria-label="바디 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="bodyScore" data-score="${n}" aria-pressed="${n===3}">${n}</button>`).join("")}</div></div>`+
@@ -92,11 +92,7 @@ function build(){
     const btn=e.target.closest("button[data-flavor]");if(!btn)return;
     const id=btn.dataset.flavor,value=Number(btn.dataset.score);
     $("#"+id).value=value;
-    if(id==="bodyScore"){
-      // Body is an intensity continuum, not automatically a defect.
-      $("#thin").value=value<=1?4:value===2?2:0;
-      $("#heavy").value=value>=5?4:value===4?2:0;
-    }
+    // Body and watery sensation are independent observations.
     refresh();
   });
 }
