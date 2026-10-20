@@ -533,6 +533,20 @@ $("#analyze").onclick=()=>{
       "WDT·분배·수평 탬핑을 동일하게 재현",
       "같은 조건으로 한 샷 더 뽑아 시간 편차 확인"
     ];
+  }else if(W<=3 && r<1.8 && (S>=4 || B>=4 || O>=4) && D<7 && !repeatGuard){
+    // Sweetness-first experiment: low beverage yield can mask perceived sweetness.
+    // This is a hypothesis, not a diagnosis of channeling or guaranteed improvement.
+    direction="hold";move=0;targetText=curKnob;
+    b="단맛 탐색";
+    h="분쇄도 유지 · 추출량만 +3g 비교";
+    primaryChange="추출량 +3g";
+    why="단맛이 약하고 추출 비율이 짧습니다. 신맛과 쓴맛이 동시에 있다는 사실만으로 채널링을 확정할 수 없습니다. 먼저 동일한 도징·분쇄·온도·적심 조건에서 추출량만 3g 늘려 단맛, 바디, 후미를 비교하세요.";
+    steps=[
+      "도징·분쇄도·온도·적심/대기 설정 유지",
+      "추출량 "+y.toFixed(1)+"g → "+(y+3).toFixed(1)+"g",
+      "두 샷을 비슷한 음용 온도에서 비교: 단맛·바디·건조함·후미",
+      "더 쓰거나 건조하면 이전 추출량으로 복귀하고 퍽 균일성 확인"
+    ];
   }else if(unevenCombo){
     direction="hold";move=0;
     b="불균일 추출 의심";
