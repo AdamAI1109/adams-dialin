@@ -70,7 +70,10 @@ function parseKnobText(v){
   if(!m)return null;
   return {t:+m[1],m:+m[2],s:+m[3]};
 }
-function state(v){const labels=["없음","거의 없음","매우 미미함","미미함","약함","보통","약간 강함","조금 강함","강함","매우 강함","극도로 강함"];const n=Math.max(0,Math.min(10,Math.round(v)));return n+" · "+labels[n]}
+// New 0–5 sensory UI. The existing diagnosis engine and legacy records remain on 0–10.
+const sensoryToEngine=v=>Math.max(0,Math.min(5,Number(v)||0))*2;
+const displayTaste=(v,scale)=>scale===5?String(v??0):String(v??0)+"/10 (이전 기준)";
+function state(v){const labels=["없음","감지됨","뚜렷함","꽤 강함","강함 · 다른 맛을 가림","매우 강함 · 지배적"];const n=Math.max(0,Math.min(5,Math.round(v)));return n+" · "+labels[n]}
 function render(){
   $("#knobText").textContent=kp();
   $("#umText").textContent=micron(knobValue())+" µm";
@@ -78,10 +81,10 @@ function render(){
   let d=+$("#dose").value,y=+$("#yield").value;
   $("#ratioText").textContent=d&&y?"1:"+(y/d).toFixed(2):"-";
 }
-function build(){const sliders=$("#sliders");if(!sliders)return;sliders.innerHTML="";tastes.forEach(([id,n])=>sliders.insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="10" value="0"></div>`));}
+function build(){const sliders=$("#sliders");if(!sliders)return;sliders.innerHTML="";tastes.forEach(([id,n])=>sliders.insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="5" step="1" value="0" aria-label="${n} 강도, 0은 없음, 1은 감지, 3은 꽤 강함"></div>`));}
 function refresh(){tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value)})}
 qsa(".roasts button").forEach(b=>b.onclick=()=>{qsa(".roasts button").forEach(x=>x.classList.remove("on"));b.classList.add("on");roast=b.dataset.roast});
-qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if(b.dataset.preset==="sour"){$("#sour").value=8;$("#thin").value=5;$("#hollow").value=4}if(b.dataset.preset==="bitter"){$("#bitter").value=8;$("#dry").value=5}if(b.dataset.preset==="mixed"){$("#sour").value=7;$("#bitter").value=7;$("#dry").value=5}refresh()});
+qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if(b.dataset.preset==="sour"){$("#sour").value=4;$("#thin").value=3;$("#hollow").value=2}if(b.dataset.preset==="bitter"){$("#bitter").value=4;$("#dry").value=3}if(b.dataset.preset==="mixed"){$("#sour").value=3;$("#bitter").value=3;$("#dry").value=3}refresh()});
 const resetTaste=$("#resetTaste");
 if(resetTaste)resetTaste.onclick=()=>{
   tastes.forEach(([id])=>$("#"+id).value=0);
@@ -147,8 +150,8 @@ function showInputWarning(message){
 
 function currentTasteVector(){
   return {
-    sour:+$("#sour").value,bright:+$("#bright").value,bitter:+$("#bitter").value,dry:+$("#dry").value,
-    thin:+$("#thin").value,heavy:+$("#heavy").value,hollow:+$("#hollow").value,sweet:+$("#sweet").value
+    sour:sensoryToEngine($("#sour").value),bright:sensoryToEngine($("#bright").value),bitter:sensoryToEngine($("#bitter").value),dry:sensoryToEngine($("#dry").value),
+    thin:sensoryToEngine($("#thin").value),heavy:sensoryToEngine($("#heavy").value),hollow:sensoryToEngine($("#hollow").value),sweet:sensoryToEngine($("#sweet").value)
   };
 }
 function loadLastAnalysis(){
@@ -186,11 +189,12 @@ function stageLabel(balanced,repeatCount,move,direction){
   if(repeatCount===2)return "2차 조정";
   return "1차 조정";
 }
+function piSettings(){return {wet:Number($("#piWet")?.value??2),wait:Number($("#piWait")?.value??5)};}
 function shotSnapshot(){
   const d=+$("#dose").value,y=+$("#yield").value,t=+$("#time").value,tmp=+$("#temp").value;
   return {
     kt:turn,km:major,ks:sub,knob:kp(),d,y,t,tmp,ratio:d?y/d:0,
-    tastes:currentTasteVector(),ts:Date.now()
+    tastes:currentTasteVector(),tasteScale:5,pi:piSettings(),ts:Date.now()
   };
 }
 function baselineSummaryHtml(b){
@@ -445,7 +449,9 @@ function preinfusionAdvice({repeatCount,direction,move,mixed,timeChange,t,sourCh
 $("#analyze").onclick=()=>{
   const doseEl=$("#dose"), yieldEl=$("#yield"), timeEl=$("#time"), tempEl=$("#temp");
   const d=+doseEl.value,y=+yieldEl.value,t=+timeEl.value,tmp=+tempEl.value;
-  const inputError=validateShotInputs(d,y,t,tmp);
+  const piConfig=piSettings();
+  const piError=(!Number.isFinite(piConfig.wet)||!Number.isFinite(piConfig.wait)||piConfig.wet<0||piConfig.wait<0||piConfig.wet>20||piConfig.wait>30||piConfig.wet+piConfig.wait>=t)?"적심·대기 시간 설정을 확인하세요. 합계는 전체 추출시간보다 짧아야 합니다.":"";
+  const inputError=validateShotInputs(d,y,t,tmp)||piError;
   if(inputError){
     showInputWarning(inputError);
     doseEl.closest(".card")?.scrollIntoView({behavior:"smooth",block:"start"});
@@ -464,7 +470,8 @@ $("#analyze").onclick=()=>{
   const last=loadLastAnalysis();
   const curKnob=kp();
   const audit=comparisonAudit(last,{d,y,t,tmp,curKnob});
-  const repeatGuard=repeatabilityGuard(last,{d,y,t,tmp,curKnob});
+  const piChanged=!!(last?.pi&&(last.pi.wet!==piConfig.wet||last.pi.wait!==piConfig.wait));
+  const repeatGuard=piChanged?null:repeatabilityGuard(last,{d,y,t,tmp,curKnob});
 
   let b="미세조정",h="한 변수만 미세 조정";
   let why="한쪽 결점이 뚜렷하지 않아 아주 작은 조정이 좋습니다.";
@@ -532,6 +539,20 @@ $("#analyze").onclick=()=>{
       "그라인더 퍼지/잔류분 확인",
       "WDT·분배·수평 탬핑을 동일하게 재현",
       "같은 조건으로 한 샷 더 뽑아 시간 편차 확인"
+    ];
+  }else if(W<=3 && r<1.8 && (S>=4 || B>=4 || O>=4) && D<7 && !repeatGuard){
+    // Sweetness-first experiment: low beverage yield can mask perceived sweetness.
+    // This is a hypothesis, not a diagnosis of channeling or guaranteed improvement.
+    direction="hold";move=0;targetText=curKnob;
+    b="단맛 탐색";
+    h="분쇄도 유지 · 추출량만 +3g 비교";
+    primaryChange="추출량 +3g";
+    why="단맛이 약하고 추출 비율이 짧습니다. 신맛과 쓴맛이 동시에 있다는 사실만으로 채널링을 확정할 수 없습니다. 먼저 동일한 도징·분쇄·온도·적심 조건에서 추출량만 3g 늘려 단맛, 바디, 후미를 비교하세요.";
+    steps=[
+      "도징·분쇄도·온도·적심/대기 설정 유지",
+      "추출량 "+y.toFixed(1)+"g → "+(y+3).toFixed(1)+"g",
+      "두 샷을 비슷한 음용 온도에서 비교: 단맛·바디·건조함·후미",
+      "더 쓰거나 건조하면 이전 추출량으로 복귀하고 퍽 균일성 확인"
     ];
   }else if(unevenCombo){
     direction="hold";move=0;
@@ -914,6 +935,52 @@ $("#analyze").onclick=()=>{
     }
   }
 
+  // Calibrate MYG85 movement using a prior *comparable* grind-only trial.
+  // The previous recommended knob must actually have been applied.
+  // If dose, beverage yield, temperature or roast changed, do not infer seconds per step.
+  if(move>=0.1 && (direction==="fine" || direction==="coarse") && primaryChange.startsWith(direction==="fine"?"FINE":"COARSE")){
+    const sameRecipe=last && Math.abs(d-(last.dose??d))<0.15 &&
+      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5 && !piChanged;
+    const priorMove=Number(last?.move||0);
+    const observedSeconds=Math.abs(timeChange);
+    const expectedSign=direction==="fine"?1:-1;
+    const consistent=last?.direction===direction && appliedLast &&
+      sameRecipe && priorMove>=0.1 && observedSeconds>=1 &&
+      Math.sign(timeChange)===expectedSign;
+    let calibrated=false;
+    if(consistent){
+      const secondsPerTenth=observedSeconds/(priorMove*10);
+      // Require a plausible response; avoid learning from channeling or near-zero noise.
+      if(secondsPerTenth>=0.35 && secondsPerTenth<=8){
+        const guide=targetGuide(d,roast);
+        const center=(guide.tLow+guide.tHigh)/2;
+        const signedGap=(direction==="fine"?center-t:t-center);
+        if(signedGap>1.5){
+          const estimate=Math.round((signedGap/secondsPerTenth))/10;
+          move=Math.max(0.1,Math.min(0.5,estimate));
+          calibrated=true;
+        }
+      }
+    }else if(!last && (direction==="fine"?t<23:t>36)){
+      move=Math.max(move,0.3);
+    }
+    // Never assume a single extraction time target guarantees good taste.
+    move=Math.round(move*10)/10;
+    const n=shiftedSteps(direction==="fine"?-1:1,Math.round(move*10));
+    targetText=kp(n.t,n.m,n.s);
+    primaryChange=(direction==="fine"?"FINE ":"COARSE ")+move.toFixed(1);
+    h=(direction==="fine"?"FINE":"COARSE")+"으로 "+move.toFixed(1)+" 이동";
+    steps=[
+      (direction==="fine"?"FINE":"COARSE")+" "+move.toFixed(1)+" → "+targetText,
+      "도징·추출량·온도·퍽 준비 유지",
+      "다음 샷의 시간·단맛·신맛·쓴맛을 비교",
+      "흐름이 반대로 변하거나 맛이 악화되면 추가 조정 중단"
+    ];
+    why+=" "+(calibrated
+      ?"직전 동일 레시피의 실제 노브 반응으로 조정 폭을 추정했습니다. 한 번의 관측이므로 다음 샷에서 재검증하세요."
+      :"비교 가능한 노브 반응 데이터가 부족해 초기 시험 폭을 제시했습니다. MYG85의 고정 공식은 아닙니다.");
+  }
+
   const repeatCount = appliedLast && last.direction===direction ? (last.repeatCount||1)+1 : 1;
   const balanced = W>=7 && Math.max(S,B,D,T,H,O)<=3;
   let confidence = confidenceLabel(delta,mixed,tv);
@@ -922,6 +989,7 @@ $("#analyze").onclick=()=>{
   if(repeatGuard)confidence="낮음";
   const stage = stageLabel(balanced,repeatCount,move,direction);
   const piRec = preinfusionAdvice({repeatCount,direction,move,mixed,timeChange,t,sourChange,overChange});
+  if(piRec.show){piRec.text=piRec.title==="프리인퓨전은 그대로"?"현재 "+piConfig.wet+"초 적심 + "+piConfig.wait+"초 대기 유지":(direction==="fine"?piConfig.wet+"초 적심 유지 · 대기 "+piConfig.wait+"초 → "+(piConfig.wait+1)+"초 비교":piConfig.wet+"초 적심 유지 · 대기 "+piConfig.wait+"초 → "+Math.max(0,piConfig.wait-1)+"초 비교");}
 
   $("#badge").textContent=b;
   $("#shotSummary").textContent=shotSummaryText(tv,t,r,c,mixed);
@@ -1022,8 +1090,8 @@ $("#analyze").onclick=()=>{
 
   const nextSettings=deriveNextSettings(primaryChange,targetText,{d,y,t,tmp});
   saveLastAnalysis({
-    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,
-    dose:d,yield:y,time:t,temp:tmp,ratio:r,primaryVariable:pv,variableStreak,
+    current:curKnob,target:targetText,direction,move,repeatCount,tastes:tv,tasteScale:5,
+    dose:d,yield:y,time:t,temp:tmp,pi:piConfig,ratio:r,primaryVariable:pv,variableStreak,
     recommendedPrimary:primaryChange,comparisonQuality:audit.level,nextSettings
   });
 };
@@ -1058,6 +1126,12 @@ function showBaseline(){
   box.classList.remove("hidden");
   box.innerHTML=baselineSummaryHtml(b);
 }
+const exportHistory=$("#exportHistory");
+if(exportHistory)exportHistory.onclick=()=>{
+  const payload={app:"Adams Dial-in",exportedAt:new Date().toISOString(),shots:JSON.parse(localStorage.getItem("shots")||"[]"),baseline:loadBaseline(),lastAnalysis:loadLastAnalysis()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="adams-dialin-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+};
 function showHist(){
   const H=JSON.parse(localStorage.getItem("shots")||"[]");
   const baseline=loadBaseline();
@@ -1065,7 +1139,7 @@ function showHist(){
     const knob=x.knob||(x.kt!==undefined?kp(x.kt,x.km,x.ks):String(x.k??"-"));
     const tv=x.tastes||{};
     const isBase=baseline && (baseline.ts&&x.ts===baseline.ts);
-    const tasteLine=x.tastes?`<div class="hist-tastes">🍋 ${tv.sour} · ✨ ${tv.bright??0} · ☕ ${tv.bitter} · 🍯 ${tv.sweet}</div>`:"";
+    const tasteLine=x.tastes?`<div class="hist-tastes">${x.tasteScale===5?"새 척도 (0~5, 내부 환산값)":"이전 기록 (0~10)"} · 🍋 ${x.tasteScale===5?tv.sour/2:tv.sour} · ✨ ${x.tasteScale===5?(tv.bright??0)/2:(tv.bright??0)} · ☕ ${x.tasteScale===5?tv.bitter/2:tv.bitter} · 🍯 ${x.tasteScale===5?tv.sweet/2:tv.sweet}</div>`:"";
     return `<div class="hist-card"><div class="hist-head"><span>#${H.length-i}</span><b>${knob}</b>${isBase?'<em>기준</em>':''}</div><div class="hist-shot">${Number(x.d).toFixed(1)}→${Number(x.y).toFixed(1)}g · ${x.t}s · ${x.tmp}°C</div>${tasteLine}</div>`;
   }).join("");
 }
