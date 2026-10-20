@@ -989,7 +989,7 @@ $("#analyze").onclick=()=>{
   if(repeatGuard)confidence="낮음";
   const stage = stageLabel(balanced,repeatCount,move,direction);
   const piRec = preinfusionAdvice({repeatCount,direction,move,mixed,timeChange,t,sourChange,overChange});
-  if(piRec.show){piRec.text=piRec.text.replaceAll("2초 적심",piConfig.wet+"초 적심").replaceAll("5초",piConfig.wait+"초").replaceAll("6초",(piConfig.wait+1)+"초").replaceAll("4초",Math.max(0,piConfig.wait-1)+"초");}
+  if(piRec.show){piRec.text=piRec.title==="프리인퓨전은 그대로"?"현재 "+piConfig.wet+"초 적심 + "+piConfig.wait+"초 대기 유지":(direction==="fine"?piConfig.wet+"초 적심 유지 · 대기 "+piConfig.wait+"초 → "+(piConfig.wait+1)+"초 비교":piConfig.wet+"초 적심 유지 · 대기 "+piConfig.wait+"초 → "+Math.max(0,piConfig.wait-1)+"초 비교");}
 
   $("#badge").textContent=b;
   $("#shotSummary").textContent=shotSummaryText(tv,t,r,c,mixed);
