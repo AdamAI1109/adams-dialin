@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./style-v160.css?v=164">
+<link rel="stylesheet" href="./style-v160.css?v=165">
 <title>Adam's Dial-in</title>
 <script>
 (function(){
@@ -29,10 +29,23 @@
 <header>
   <img src="./adams-logo-exact.svg?v=160" class="brand-logo" alt="Adam's">
   <div><div class="eyebrow">ADAM'S ESPRESSO LAB</div><h1>Dial-in</h1><div class="sub">MYG85 · BUNKER #8 · IMS 28.5E</div></div>
-  <span class="ver">v1.64</span>
+  <span class="ver">v1.65</span>
 </header>
 
 <div id="appError" class="app-error hidden">앱을 불러오는 중 문제가 생겼어요. 새로고침 후에도 계속되면 알려주세요.</div><main>
+<section class="card">
+  <div class="section-head"><b>음료 평가</b><span>아아 기본</span></div>
+  <label for="drinkMode">시음한 음료</label>
+  <select id="drinkMode" style="display:block;width:100%;min-height:48px;margin:8px 0;padding:8px;border-radius:10px">
+    <option value="iced-americano">🧊 아이스 아메리카노</option>
+    <option value="hot-americano">♨️ 따뜻한 아메리카노</option>
+    <option value="espresso">☕ 에스프레소</option>
+    <option value="hot-latte">🥛 따뜻한 라떼</option>
+    <option value="iced-latte">🧋 아이스 라떼</option>
+  </select>
+  <div id="drinkRecipe"></div>
+  <label style="display:block;margin-top:10px"><input id="drinkConsistent" type="checkbox" checked> 제조·혼합·시음 조건 동일</label>
+</section>
 <section class="card">
   <div class="section-head"><b>원두와 로스팅</b><span>STEP 1</span></div>
   <div class="roasts">
@@ -105,7 +118,7 @@
 </main>
 
 <div class="sticky"><button id="analyze">3 · 다음 샷 분석</button><button id="reset">초기화</button></div>
-<script src="./app-v160.js?v=164"></script>
+<script src="./app-v160.js?v=165"></script>
 <!-- pages-redeploy-137 -->
 </body>
 </html>
