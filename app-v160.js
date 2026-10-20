@@ -931,6 +931,52 @@ $("#analyze").onclick=()=>{
     }
   }
 
+  // Calibrate MYG85 movement using a prior *comparable* grind-only trial.
+  // The previous recommended knob must actually have been applied.
+  // If dose, beverage yield, temperature or roast changed, do not infer seconds per step.
+  if(move>=0.1 && (direction==="fine" || direction==="coarse") && primaryChange.startsWith(direction==="fine"?"FINE":"COARSE")){
+    const sameRecipe=last && Math.abs(d-(last.dose??d))<0.15 &&
+      Math.abs(y-(last.yield??y))<0.5 && Math.abs(tmp-(last.temp??tmp))<0.5;
+    const priorMove=Number(last?.move||0);
+    const observedSeconds=Math.abs(timeChange);
+    const expectedSign=direction==="fine"?1:-1;
+    const consistent=last?.direction===direction && appliedLast &&
+      sameRecipe && priorMove>=0.1 && observedSeconds>=1 &&
+      Math.sign(timeChange)===expectedSign;
+    let calibrated=false;
+    if(consistent){
+      const secondsPerTenth=observedSeconds/(priorMove*10);
+      // Require a plausible response; avoid learning from channeling or near-zero noise.
+      if(secondsPerTenth>=0.35 && secondsPerTenth<=8){
+        const guide=targetGuide(d,roast);
+        const center=(guide.tLow+guide.tHigh)/2;
+        const signedGap=(direction==="fine"?center-t:t-center);
+        if(signedGap>1.5){
+          const estimate=Math.round((signedGap/secondsPerTenth))/10;
+          move=Math.max(0.1,Math.min(0.5,estimate));
+          calibrated=true;
+        }
+      }
+    }else if(!last && (direction==="fine"?t<23:t>36)){
+      move=Math.max(move,0.3);
+    }
+    // Never assume a single extraction time target guarantees good taste.
+    move=Math.round(move*10)/10;
+    const n=shiftedSteps(direction==="fine"?-1:1,Math.round(move*10));
+    targetText=kp(n.t,n.m,n.s);
+    primaryChange=(direction==="fine"?"FINE ":"COARSE ")+move.toFixed(1);
+    h=(direction==="fine"?"FINE":"COARSE")+"으로 "+move.toFixed(1)+" 이동";
+    steps=[
+      (direction==="fine"?"FINE":"COARSE")+" "+move.toFixed(1)+" → "+targetText,
+      "도징·추출량·온도·퍽 준비 유지",
+      "다음 샷의 시간·단맛·신맛·쓴맛을 비교",
+      "흐름이 반대로 변하거나 맛이 악화되면 추가 조정 중단"
+    ];
+    why+=" "+(calibrated
+      ?"직전 동일 레시피의 실제 노브 반응으로 조정 폭을 추정했습니다. 한 번의 관측이므로 다음 샷에서 재검증하세요."
+      :"비교 가능한 노브 반응 데이터가 부족해 초기 시험 폭을 제시했습니다. MYG85의 고정 공식은 아닙니다.");
+  }
+
   const repeatCount = appliedLast && last.direction===direction ? (last.repeatCount||1)+1 : 1;
   const balanced = W>=7 && Math.max(S,B,D,T,H,O)<=3;
   let confidence = confidenceLabel(delta,mixed,tv);
