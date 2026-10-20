@@ -81,13 +81,35 @@ function render(){
   let d=+$("#dose").value,y=+$("#yield").value;
   $("#ratioText").textContent=d&&y?"1:"+(y/d).toFixed(2):"-";
 }
-function build(){const sliders=$("#sliders");if(!sliders)return;sliders.innerHTML="";tastes.forEach(([id,n])=>sliders.insertAdjacentHTML("beforeend",`<div class="flavor"><div class="fhead"><span>${n}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="range" min="0" max="5" step="1" value="0" aria-label="${n} 강도, 0은 없음, 1은 감지, 3은 꽤 강함"></div>`));}
-function refresh(){tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value)})}
+function build(){
+  const sliders=$("#sliders");if(!sliders)return;
+  const primary=["sour","bitter","sweet"];
+  const makeTaste=([id,name])=>`<div class="flavor flavor-buttons"><div class="fhead"><span>${name}</span><span class="state" id="${id}S"></span></div><input id="${id}" type="hidden" value="0"><div class="taste-buttons" role="group" aria-label="${name} 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="${id}" data-score="${n}" aria-pressed="${n===0}">${n}</button>`).join("")}</div></div>`;
+  sliders.innerHTML=tastes.filter(([id])=>primary.includes(id)).map(makeTaste).join("")+
+    `<div class="flavor flavor-buttons"><div class="fhead"><span>☕ 바디 (0 가벼움 · 5 묵직함)</span><span id="bodyS" class="state"></span></div><input id="bodyScore" type="hidden" value="3"><div class="taste-buttons" role="group" aria-label="바디 강도">${[0,1,2,3,4,5].map(n=>`<button type="button" data-flavor="bodyScore" data-score="${n}" aria-pressed="${n===3}">${n}</button>`).join("")}</div></div>`+
+    `<details class="expert-details"><summary>상세 향미 평가 (좋은 산미 · 떫음 · 묽음 · 무거움 · 빈 맛)</summary><div class="advanced-flavors">${tastes.filter(([id])=>!primary.includes(id)).map(makeTaste).join("")}</div></details>`;
+  sliders.addEventListener("click",e=>{
+    const btn=e.target.closest("button[data-flavor]");if(!btn)return;
+    const id=btn.dataset.flavor,value=Number(btn.dataset.score);
+    $("#"+id).value=value;
+    if(id==="bodyScore"){
+      // Body is an intensity continuum, not automatically a defect.
+      $("#thin").value=value<=1?4:value===2?2:0;
+      $("#heavy").value=value>=5?4:value===4?2:0;
+    }
+    refresh();
+  });
+}
+function refresh(){
+  tastes.forEach(([id])=>{const input=$("#"+id),label=$("#"+id+"S");if(input&&label)label.textContent=state(+input.value)});
+  const body=$("#bodyScore");if(body)$("#bodyS").textContent=body.value+" / 5";
+  qsa(".taste-buttons button").forEach(b=>{const active=Number($("#"+b.dataset.flavor)?.value)===Number(b.dataset.score);b.classList.toggle("selected",active);b.setAttribute("aria-pressed",String(active));});
+}
 qsa(".roasts button").forEach(b=>b.onclick=()=>{qsa(".roasts button").forEach(x=>x.classList.remove("on"));b.classList.add("on");roast=b.dataset.roast});
-qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if(b.dataset.preset==="sour"){$("#sour").value=4;$("#thin").value=3;$("#hollow").value=2}if(b.dataset.preset==="bitter"){$("#bitter").value=4;$("#dry").value=3}if(b.dataset.preset==="mixed"){$("#sour").value=3;$("#bitter").value=3;$("#dry").value=3}refresh()});
+qsa(".quick button").forEach(b=>b.onclick=()=>{qsa(".quick button").forEach(x=>x.classList.remove("on"));b.classList.add("on");tastes.forEach(([id])=>$("#"+id).value=0);if($("#bodyScore"))$("#bodyScore").value=3;if($("#bodyScore"))$("#bodyScore").value=3;if(b.dataset.preset==="sour"){$("#sour").value=4;$("#thin").value=3;$("#hollow").value=2}if(b.dataset.preset==="bitter"){$("#bitter").value=4;$("#dry").value=3}if(b.dataset.preset==="mixed"){$("#sour").value=3;$("#bitter").value=3;$("#dry").value=3}refresh()});
 const resetTaste=$("#resetTaste");
 if(resetTaste)resetTaste.onclick=()=>{
-  tastes.forEach(([id])=>$("#"+id).value=0);
+  tastes.forEach(([id])=>$("#"+id).value=0);if($("#bodyScore"))$("#bodyScore").value=3;
   qsa(".quick button").forEach(x=>x.classList.remove("on"));
   refresh();
 };
@@ -194,7 +216,7 @@ function shotSnapshot(){
   const d=+$("#dose").value,y=+$("#yield").value,t=+$("#time").value,tmp=+$("#temp").value;
   return {
     kt:turn,km:major,ks:sub,knob:kp(),d,y,t,tmp,ratio:d?y/d:0,
-    tastes:currentTasteVector(),tasteScale:5,pi:piSettings(),ts:Date.now()
+    tastes:currentTasteVector(),bodyScore:Number($("#bodyScore")?.value??3),tasteScale:5,pi:piSettings(),ts:Date.now()
   };
 }
 function baselineSummaryHtml(b){
@@ -1107,7 +1129,7 @@ if(nextShot)nextShot.onclick=()=>{
     if(!duplicate){H.unshift(snap);localStorage.setItem("shots",JSON.stringify(H.slice(0,6)));}
   }catch(e){}
   if(rec)applyNextSettings(rec.nextSettings);
-  tastes.forEach(([id])=>$("#"+id).value=0);
+  tastes.forEach(([id])=>$("#"+id).value=0);if($("#bodyScore"))$("#bodyScore").value=3;
   qsa(".quick button").forEach(x=>x.classList.remove("on"));
   refresh();render();showHist();
   $("#result").classList.add("hidden");
@@ -1143,7 +1165,7 @@ function showHist(){
     return `<div class="hist-card"><div class="hist-head"><span>#${H.length-i}</span><b>${knob}</b>${isBase?'<em>기준</em>':''}</div><div class="hist-shot">${Number(x.d).toFixed(1)}→${Number(x.y).toFixed(1)}g · ${x.t}s · ${x.tmp}°C</div>${tasteLine}</div>`;
   }).join("");
 }
-$("#reset").onclick=()=>{try{localStorage.removeItem("lastAnalysis")}catch(e){};turn=0;major=9;sub=0;rot=-324;setKnobFromIndex(54);$("#dose").value="22.0";$("#yield").value="35.0";$("#time").value="27";$("#temp").value="92";tastes.forEach(([id])=>$("#"+id).value=0);$("#result").classList.add("hidden");$("#oneChange").classList.add("hidden");$("#changes").classList.add("hidden");$("#baselineCompare").classList.add("hidden");$("#piAdvice").classList.add("hidden");$("#diagnosis").classList.add("hidden");$("#comparisonQuality").classList.add("hidden");$("#mechanism").classList.add("hidden");$("#teacherNotes").classList.add("hidden");showInputWarning("");refresh();render()};
+$("#reset").onclick=()=>{try{localStorage.removeItem("lastAnalysis")}catch(e){};turn=0;major=9;sub=0;rot=-324;setKnobFromIndex(54);$("#dose").value="22.0";$("#yield").value="35.0";$("#time").value="27";$("#temp").value="92";tastes.forEach(([id])=>$("#"+id).value=0);if($("#bodyScore"))$("#bodyScore").value=3;$("#result").classList.add("hidden");$("#oneChange").classList.add("hidden");$("#changes").classList.add("hidden");$("#baselineCompare").classList.add("hidden");$("#piAdvice").classList.add("hidden");$("#diagnosis").classList.add("hidden");$("#comparisonQuality").classList.add("hidden");$("#mechanism").classList.add("hidden");$("#teacherNotes").classList.add("hidden");showInputWarning("");refresh();render()};
 build();refresh();render();showHist();showBaseline();
 const errBox=$("#appError");
 if(errBox && $("#sliders")?.children.length>0) errBox.classList.add("hidden");
