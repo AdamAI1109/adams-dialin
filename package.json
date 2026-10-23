@@ -1,0 +1,1 @@
+{"name":"adams-dialin","private":true,"type":"module","scripts":{"test":"node --test"},"devDependencies":{"jsdom":"^30.1.3"}}

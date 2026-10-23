@@ -72,7 +72,21 @@ function parseKnobText(v){
 }
 // New 0–5 sensory UI. The existing diagnosis engine and legacy records remain on 0–10.
 const sensoryToEngine=v=>Math.max(0,Math.min(5,Number(v)||0))*2;
-const displayTaste=(v,scale)=>scale===5?String(v??0):String(v??0)+"/10 (이전 기준)";
+// Taste scores are stored on the engine scale (0-10); records entered through the
+// 0-5 UI carry tasteScale 5 and were doubled by sensoryToEngine. Display those back
+// on the 0-5 scale the user actually saw. Legacy records keep their original 0-10 scale.
+const tasteDisplay=(v,tasteScale)=>{
+  if(v===undefined||v===null||v==="")return "-";
+  const n=Number(v);
+  if(!Number.isFinite(n))return "-";
+  return tasteScale===5?String(n/2):String(n);
+};
+// Same value with an explicit /10 scale label for legacy records, so a legacy
+// 0-10 score is never mistaken for a new 0-5 score when both appear together.
+const tasteDisplayLabeled=(v,tasteScale)=>{
+  const text=tasteDisplay(v,tasteScale);
+  return text==="-"||tasteScale===5?text:text+"/10";
+};
 function state(v,id=""){const n=Math.max(0,Math.min(5,Math.round(v)));const general=["없음","감지됨","뚜렷함","꽤 강함","강함 · 다른 맛을 가림","매우 강함 · 지배적"];const watery=["전혀 묽지 않음","살짝 묽음","묽음이 뚜렷함","꽤 묽음","물 같은 느낌이 강함","매우 묽음"];const body=["무게감 거의 없음","매우 가벼움","가벼움","중간 바디","묵직함","매우 묵직함"];return n+" · "+(id==="thin"?watery:id==="bodyScore"?body:general)[n]}
 function render(){
   $("#knobText").textContent=kp();
@@ -236,7 +250,7 @@ function baselineSummaryHtml(b){
   if(!b)return "";
   return `<div class="baseline-title">⭐ 기준 샷</div>
     <div class="baseline-main"><b>${b.knob||kp(b.kt,b.km,b.ks)}</b><span>${Number(b.d).toFixed(1)}g → ${Number(b.y).toFixed(1)}g · ${b.t}s · ${b.tmp}°C</span></div>
-    <div class="baseline-sub">비율 1:${Number(b.ratio||b.y/b.d).toFixed(2)} · 신맛 ${b.tastes?.sour??"-"} · 좋은 산미 ${b.tastes?.bright??"-"} · 단맛 ${b.tastes?.sweet??"-"}</div>`;
+    <div class="baseline-sub">비율 1:${Number(b.ratio||b.y/b.d).toFixed(2)} · 신맛 ${tasteDisplayLabeled(b.tastes?.sour,b.tasteScale)} · 좋은 산미 ${tasteDisplayLabeled(b.tastes?.bright,b.tasteScale)} · 단맛 ${tasteDisplayLabeled(b.tastes?.sweet,b.tasteScale)}</div>`;
 }
 
 function signed(n,digits=0){
@@ -1104,7 +1118,11 @@ $("#analyze").onclick=()=>{
     if(last.current!==curKnob) rows.push(`<div><span>노브</span><b>${last.current} → ${curKnob}</b></div>`);
     rows.push(`<div><span>추출시간</span><b>${last.time}s → ${t}s <em>(${signed(timeChange)}s)</em></b></div>`);
     rows.push(`<div><span>추출비율</span><b>1:${(last.ratio||0).toFixed(2)} → 1:${r.toFixed(2)} <em>(${signed(ratioChange,2)})</em></b></div>`);
-    tasteRows.forEach(x=>rows.push(`<div><span>${x.name}</span><b>${x.prev} → ${x.cur} <em>(${signed(x.diff)})</em></b></div>`));
+    tasteRows.forEach(x=>{
+      const sameScale=last.tasteScale===5;
+      const diffText=sameScale?` <em>(${signed(x.diff/2)})</em>`:"";
+      rows.push(`<div><span>${x.name}</span><b>${tasteDisplayLabeled(x.prev,last.tasteScale)} → ${tasteDisplay(x.cur,5)+(sameScale?"":"/5")}${diffText}</b></div>`);
+    });
     changes.classList.remove("hidden");
     changes.innerHTML=`<div class="changes-title">이전 샷과 비교</div>${rows.join("")}`;
   }else{
@@ -1118,7 +1136,13 @@ $("#analyze").onclick=()=>{
     const bd=baseline.tastes||{};
     const diffs=[];
     ["sour","bright","bitter","dry","thin","heavy","hollow","sweet"].forEach(k=>{
-      if(bd[k]!==undefined && tv[k]!==bd[k]) diffs.push(tasteNames[k]+" "+bd[k]+"→"+tv[k]);
+      if(bd[k]===undefined)return;
+      // Compare raw engine-scale values, not formatted strings: a legacy 8/10
+      // and a new 4/5 are the same score, and a legacy 4/10 differs from 4/5.
+      const prevEngine=Number(bd[k]),curEngine=Number(tv[k]);
+      if(!Number.isFinite(prevEngine)||prevEngine===curEngine)return;
+      const curLabel=baseline.tasteScale===5?"":"/5";
+      diffs.push(tasteNames[k]+" "+tasteDisplayLabeled(bd[k],baseline.tasteScale)+"→"+tasteDisplay(curEngine,5)+curLabel);
     });
     bc.classList.remove("hidden");
     bc.innerHTML=`<div class="baseline-title">기준 샷과 비교</div><div class="baseline-main"><b>${baseline.knob||kp(baseline.kt,baseline.km,baseline.ks)} → ${curKnob}</b><span>${diffs.slice(0,4).join(" · ")||"맛 점수 동일"}</span></div>`;
