@@ -81,6 +81,7 @@ test("previous-shot comparison rows show 0-5 values on both sides",t=>{
   const changes=doc.querySelector("#changes").textContent;
   assert.match(changes,/신맛/,"taste row exists");
   assert.match(changes,/4 → 2/,"comparison shows the 0-5 scores 4 and 2");
+  assert.match(changes,/4 → 2 \(-2\)/,"the displayed change amount is on the 0-5 scale: -2, not the engine diff -4");
   assert.ok(!/8 → 4/.test(changes),"comparison must not show doubled engine values 8 and 4");
 });
 
@@ -100,7 +101,7 @@ test("baseline comparison: legacy 4/10 baseline vs new 4/5 shot differ and the l
   score(window,"sour",4); // engine 8, clearly different from legacy engine 4
   doc.querySelector("#analyze").click();
   const bc=doc.querySelector("#baselineCompare").textContent;
-  assert.match(bc,/신맛 4\/10→4/,"legacy side is shown on its own 0-10 scale and the change is reported");
+  assert.match(bc,/신맛 4\/10→4\/5/,"both scales are labeled: legacy 4/10, new 4/5");
 });
 
 test("previous-shot comparison: legacy 8/10 vs new 4/5 produces no taste row",t=>{
@@ -118,7 +119,7 @@ test("previous-shot comparison: legacy scores are labeled /10 next to new 0-5 sc
   score(window,"sour",4); // engine 8 vs legacy engine 4: a real change
   doc.querySelector("#analyze").click();
   const changes=doc.querySelector("#changes").textContent;
-  assert.match(changes,/신맛\s?4\/10 → 4/,"legacy side carries an explicit /10 label");
+  assert.match(changes,/신맛\s?4\/10 → 4\/5/,"both scales are labeled: legacy 4/10, new 4/5");
 });
 
 test("boundary scores 0 and 5 display on the 0-5 scale, including in comparisons",t=>{

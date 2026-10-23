@@ -1121,7 +1121,7 @@ $("#analyze").onclick=()=>{
     tasteRows.forEach(x=>{
       const sameScale=last.tasteScale===5;
       const diffText=sameScale?` <em>(${signed(x.diff/2)})</em>`:"";
-      rows.push(`<div><span>${x.name}</span><b>${tasteDisplayLabeled(x.prev,last.tasteScale)} → ${tasteDisplay(x.cur,5)}${diffText}</b></div>`);
+      rows.push(`<div><span>${x.name}</span><b>${tasteDisplayLabeled(x.prev,last.tasteScale)} → ${tasteDisplay(x.cur,5)+(sameScale?"":"/5")}${diffText}</b></div>`);
     });
     changes.classList.remove("hidden");
     changes.innerHTML=`<div class="changes-title">이전 샷과 비교</div>${rows.join("")}`;
@@ -1141,7 +1141,8 @@ $("#analyze").onclick=()=>{
       // and a new 4/5 are the same score, and a legacy 4/10 differs from 4/5.
       const prevEngine=Number(bd[k]),curEngine=Number(tv[k]);
       if(!Number.isFinite(prevEngine)||prevEngine===curEngine)return;
-      diffs.push(tasteNames[k]+" "+tasteDisplayLabeled(bd[k],baseline.tasteScale)+"→"+tasteDisplay(curEngine,5));
+      const curLabel=baseline.tasteScale===5?"":"/5";
+      diffs.push(tasteNames[k]+" "+tasteDisplayLabeled(bd[k],baseline.tasteScale)+"→"+tasteDisplay(curEngine,5)+curLabel);
     });
     bc.classList.remove("hidden");
     bc.innerHTML=`<div class="baseline-title">기준 샷과 비교</div><div class="baseline-main"><b>${baseline.knob||kp(baseline.kt,baseline.km,baseline.ks)} → ${curKnob}</b><span>${diffs.slice(0,4).join(" · ")||"맛 점수 동일"}</span></div>`;
